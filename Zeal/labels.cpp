@@ -5,6 +5,7 @@
 #include "EqUI.h"
 #include "Zeal.h"
 #include "json.hpp"
+#include "target_ring.h" // Include target_ring.h for GetLevelCon
 
 void default_empty(Zeal::EqUI::CXSTR* str, bool* override_color, ULONG* color)
 {
@@ -12,7 +13,6 @@ void default_empty(Zeal::EqUI::CXSTR* str, bool* override_color, ULONG* color)
 	*color = 0xffc0c0c0;
 	Zeal::EqGame::CXStr_PrintString(str, "");
 }
-
 
 bool GetLabelFromEq(int EqType, Zeal::EqUI::CXSTR* str, bool* override_color, ULONG* color)
 {
@@ -82,7 +82,7 @@ bool GetLabelFromEq(int EqType, Zeal::EqUI::CXSTR* str, bool* override_color, UL
 				Zeal::EqGame::CXStr_PrintString(str, "%s", casting_spell->Name);
 				*override_color = false;
 			}
-			
+
 		}
 		return true;
 	}
@@ -91,6 +91,25 @@ bool GetLabelFromEq(int EqType, Zeal::EqUI::CXSTR* str, bool* override_color, UL
 		Zeal::EqGame::CXStr_PrintString(str, "%s", ZealService::get_instance()->labels_hook->debug_info.c_str());
 		ZealService::get_instance()->labels_hook->debug_info = "";
 		*override_color = false;
+		return true;
+	}
+	case 600: // New case for target name and color based on level difference
+	{
+		Zeal::EqStructures::Entity* target = Zeal::EqGame::get_target();
+		if (target)
+		{
+			DWORD targetColor = GetLevelCon(target);
+			*color = D3DCOLOR_ARGB(0xFF, // Set alpha to 0xFF for solid color
+				(targetColor >> 16) & 0xFF, // Red
+				(targetColor >> 8) & 0xFF, // Green
+				targetColor & 0xFF); // Blue
+			*override_color = true;
+			Zeal::EqGame::CXStr_PrintString(str, "%s", target->Name);
+		}
+		else
+		{
+			default_empty(str, override_color, color);
+		}
 		return true;
 	}
 	default:
@@ -104,15 +123,15 @@ int GetGaugeFromEq(int EqType, Zeal::EqUI::CXSTR* str)
 	ZealService* zeal = ZealService::get_instance();
 	switch (EqType)
 	{
-		case 23:
-		{
+	case 23:
+	{
 			if (!zeal->experience) //possible nullptr crash (race condition)
-				return 0;
-			float fpct = zeal->experience->exp_per_hour_pct_tot / 100.f;
-			return (int)(1000.f * fpct);
-		}
-		default:
-			break;
+			return 0;
+		float fpct = zeal->experience->exp_per_hour_pct_tot / 100.f;
+		return (int)(1000.f * fpct);
+	}
+	default:
+		break;
 	}
 
 	return ZealService::get_instance()->hooks->hook_map["GetGauge"]->original(GetGaugeFromEq)(EqType, str);
@@ -136,11 +155,8 @@ void labels::print_debug_info(const char* format, ...)
 		debug_info += std::string(buffer);
 }
 
-
 void labels::callback_main()
 {
-
-	
 }
 
 bool labels::GetLabel(int EqType, std::string& str)
@@ -156,6 +172,7 @@ bool labels::GetLabel(int EqType, std::string& str)
 	}
 	return val;
 }
+
 int labels::GetGauge(int EqType, std::string& str)
 {
 	Zeal::EqUI::CXSTR tmp("");
@@ -168,10 +185,8 @@ int labels::GetGauge(int EqType, std::string& str)
 	return value;
 }
 
-
 labels::~labels()
 {
-
 }
 
 labels::labels(ZealService* zeal)
