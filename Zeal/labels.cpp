@@ -93,31 +93,40 @@ bool GetLabelFromEq(int EqType, Zeal::EqUI::CXSTR* str, bool* override_color, UL
 		*override_color = false;
 		return true;
 	}
-	case 600: // New case for target name and color based on level difference
+	case 28: // Default Target Name EQType
+	case 600: // Using EQType 600 as a holder to toggle the color
 	{
-		Zeal::EqStructures::Entity* target = Zeal::EqGame::get_target();
-		if (target)
+		int targetCase = zeal->labels_hook->target_label_case;
+		if (targetCase == 28) // Custom target name and color based on level difference
 		{
-			DWORD targetColor = GetLevelCon(target);
+			Zeal::EqStructures::Entity* target = Zeal::EqGame::get_target();
+			if (target)
+			{
+				DWORD targetColor = GetLevelCon(target); // This is being referenced in target_ring.h
 			*color = D3DCOLOR_ARGB(0xFF, // Set alpha to 0xFF for solid color
 				(targetColor >> 16) & 0xFF, // Red
 				(targetColor >> 8) & 0xFF, // Green
 				targetColor & 0xFF); // Blue
-			*override_color = true;
-			Zeal::EqGame::CXStr_PrintString(str, "%s", target->Name);
+				*override_color = true;
+				Zeal::EqGame::CXStr_PrintString(str, "%s", target->Name);
+			}
+			else
+			{
+				default_empty(str, override_color, color);
+			}
+			return true;
 		}
-		else
+		else if (targetCase == 600) // Default game behavior for target name
 		{
-			default_empty(str, override_color, color);
+			return ZealService::get_instance()->hooks->hook_map["GetLabel"]->original(GetLabelFromEq)(28, str, override_color, color);
 		}
-		return true;
+		// If somehow we get here with an unexpected value, fall through to default
 	}
 	default:
 		break;
 	}
 	return ZealService::get_instance()->hooks->hook_map["GetLabel"]->original(GetLabelFromEq)(EqType, str, override_color, color);
 }
-
 int GetGaugeFromEq(int EqType, Zeal::EqUI::CXSTR* str)
 {
 	ZealService* zeal = ZealService::get_instance();
@@ -125,7 +134,7 @@ int GetGaugeFromEq(int EqType, Zeal::EqUI::CXSTR* str)
 	{
 	case 23:
 	{
-			if (!zeal->experience) //possible nullptr crash (race condition)
+		if (!zeal->experience) //possible nullptr crash (race condition)
 			return 0;
 		float fpct = zeal->experience->exp_per_hour_pct_tot / 100.f;
 		return (int)(1000.f * fpct);
@@ -133,7 +142,6 @@ int GetGaugeFromEq(int EqType, Zeal::EqUI::CXSTR* str)
 	default:
 		break;
 	}
-
 	return ZealService::get_instance()->hooks->hook_map["GetGauge"]->original(GetGaugeFromEq)(EqType, str);
 }
 

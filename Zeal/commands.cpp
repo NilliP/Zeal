@@ -331,6 +331,13 @@ ChatCommands::ChatCommands(ZealService* zeal)
 			}
 			return false;
 		});
+	add("/targetconcolor", { "/tcc" }, "Toggles between default and con-color Target names.",
+		[zeal](std::vector<std::string>& args) {
+			zeal->labels_hook->target_label_case = (zeal->labels_hook->target_label_case == 28) ? 600 : 28;
+			Zeal::EqGame::print_chat("Target name con-color is %s",
+				(zeal->labels_hook->target_label_case == 28) ? "Enabled" : "Disabled");
+			return true;
+		});
 		add("/inspect", {}, "Inspect your current target.",
 		[this, zeal](std::vector<std::string>& args) {
 				if (args.size() > 1 && args[1] == "target")
