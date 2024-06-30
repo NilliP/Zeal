@@ -76,7 +76,6 @@ void ui_options::InitUI()
 	ui->AddLabel(Zeal::EqGame::Windows->Options, "Zeal_ThirdPersonLabel_Y");
 	ui->AddLabel(Zeal::EqGame::Windows->Options, "Zeal_FoVValueLabel");
 	ui->AddLabel(Zeal::EqGame::Windows->Options, "Zeal_HoverTimeout_Value");
-	ui->AddLabel(Zeal::EqGame::Windows->Options, "Zeal_VersionValue");
 	
 	/*set the current states*/
 	UpdateOptions();
@@ -118,7 +117,6 @@ void ui_options::UpdateOptions()
 	ui->SetChecked("Zeal_FloatingDamage", ZealService::get_instance()->floating_damage->enabled);
 	ui->SetChecked("Zeal_UseOldSens", ZealService::get_instance()->camera_mods->use_old_sens);
 	ui->SetChecked("Zeal_TargetRing", ZealService::get_instance()->target_ring->enabled);
-	ui->SetLabelValue("Zeal_VersionValue", "%s", ZEAL_VERSION);
 
 }
 

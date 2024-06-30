@@ -122,6 +122,13 @@ bool GetLabelFromEq(int EqType, Zeal::EqUI::CXSTR* str, bool* override_color, UL
 		}
 		// If somehow we get here with an unexpected value, fall through to default
 	}
+	case 601: // Assuming 601 is not used; choose an unused number
+	{
+		*color = D3DCOLOR_ARGB(0xFF, 0, 255, 0); // Bright green
+		*override_color = true;
+		Zeal::EqGame::CXStr_PrintString(str, "%s", ZEAL_VERSION);
+		return true;
+	}
 	default:
 		break;
 	}
