@@ -5201,20 +5201,22 @@
   </Label>
   <Label item="Zeal_VersionValue">
     <ScreenID>Zeal_VersionValue</ScreenID>
+    <EQType>601</EQType>
     <RelativePosition>true</RelativePosition>
     <Location>
       <X>212</X>
       <Y>1</Y>
     </Location>
     <Size>
-      <CX>50</CX>
+      <CX>75</CX>
       <CY>16</CY>
     </Size>
-    <Text>0.0</Text>
+    <Text>Not Found</Text>
     <TextColor>
       <R>255</R>
-      <G>255</G>
-      <B>255</B>
+      <G>0</G>
+      <B>0</B>
+      <Alpha>255</Alpha>
     </TextColor>
     <NoWrap>true</NoWrap>
     <AlignCenter>false</AlignCenter>
